@@ -1,0 +1,2 @@
+tcpd: $(OBJS)
+	$(CC) $(OBJS) $(CFLAGS) -o $@

@@ -1,0 +1,4 @@
+AUTHOR="Robin Bron"
+NAME="tcpd"
+DEPS=()
+DEPS+=("cdeps/cc-simple")
