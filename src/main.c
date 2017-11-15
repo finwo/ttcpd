@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,3 +60,7 @@ int main( int argc, char **argv ) {
 
   return 0;
 }
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
