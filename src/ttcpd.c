@@ -11,6 +11,23 @@ extern "C" {
 #include <sys/wait.h>
 #include <unistd.h>
 
+void usage( char *cmd ) {
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, "  %s -h\n", cmd);
+  fprintf(stderr, "  %s [-p port] [-c command] [-- arg arg ...]\n", cmd);
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  -h          Show this help\n");
+  fprintf(stderr, "  -p port     Set the port to listen on (default: 8080)\n");
+  fprintf(stderr, "  -c command  The command to run\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "About:\n");
+  fprintf(stderr, "%s handles network communications for basic commands, attaching\n", cmd);
+  fprintf(stderr, "a connection's i/o to the command's stdin and stdout.\n");
+  fprintf(stderr, "\n");
+}
+
 int main( int argc, char *argv[] ) {
 
   // Initialize
@@ -32,8 +49,11 @@ int main( int argc, char *argv[] ) {
       case 'p':
         port = atoi(optarg);
         break;
+      case 'h':
+        usage(argv[0]);
+        exit(EXIT_SUCCESS);
       default:
-        fprintf( stderr, "Usage: %s [-p port] [-c command] [-- arg arg ...]\n", argv[0]);
+        usage(argv[0]);
         exit(EXIT_FAILURE);
     }
   }
