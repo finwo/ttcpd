@@ -13,6 +13,10 @@ extern "C" {
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifdef GNU_SOURCE
+#include <fcntl.h>
+#endif
+
 void usage( char *cmd ) {
   fprintf(stderr, "\n");
   fprintf(stderr, "Usage:\n");
@@ -65,10 +69,12 @@ int main( int argc, char *argv[] ) {
     }
   }
 
-  // Catch arguments to child
+  // Arguments to child
+  args[0] = cmd;
   if(strcmp(argv[optind-1],"--")==0) {
-    args    = argv + (optind-1);
-    args[0] = cmd;
+    for(opt=0; argv[optind+opt]; opt++) {
+      args[opt+1] = argv[optind+opt];
+    }
   }
 
   // Make sure we have a command set
@@ -129,6 +135,8 @@ int main( int argc, char *argv[] ) {
     } else {
 
       // We're the child, bind the socket to stdio
+      close(0);
+      close(1);
       dup2(nsock,0);
       dup2(nsock,1);
 
