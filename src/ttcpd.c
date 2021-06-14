@@ -37,7 +37,7 @@ int main( int argc, char *argv[] ) {
   // Initialize
   int opt=0,port = 8080;
   char *cmd = 0;
-  char **args = 0;
+  char **args = calloc(argc,sizeof(void*));
 
   // Detect port by environment variables
   if(getenv("PORT")) {
@@ -67,7 +67,8 @@ int main( int argc, char *argv[] ) {
 
   // Catch arguments to child
   if(strcmp(argv[optind-1],"--")==0) {
-    args = argv + optind;
+    args    = argv + (optind-1);
+    args[0] = cmd;
   }
 
   // Make sure we have a command set
@@ -91,6 +92,10 @@ int main( int argc, char *argv[] ) {
   saddr.sin_port        = htons(port);
 
   inet_aton(inaddr, &saddr.sin_addr);
+
+  // Allow socket re-use
+  int optval = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
   // Bind socket to port
   if(bind(sockfd,(struct sockaddr *) &saddr, sizeof(saddr))<0) {
