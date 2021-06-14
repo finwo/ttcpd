@@ -2,7 +2,9 @@
 extern "C" {
 #endif
 
+#include <arpa/inet.h>
 #include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +21,7 @@ void usage( char *cmd ) {
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  -h          Show this help\n");
+  fprintf(stderr, "  -a address  Address to listen on (default: any)\n");
   fprintf(stderr, "  -p port     Set the port to listen on (default: 8080)\n");
   fprintf(stderr, "  -c command  The command to run\n");
   fprintf(stderr, "\n");
@@ -29,6 +32,7 @@ void usage( char *cmd ) {
 }
 
 int main( int argc, char *argv[] ) {
+  char * inaddr = "any";
 
   // Initialize
   int opt=0,port = 8080;
@@ -41,8 +45,11 @@ int main( int argc, char *argv[] ) {
   }
 
   // Parse arguments
-  while((opt = getopt(argc, argv, "c:p:")) != -1) {
+  while((opt = getopt(argc, argv, "a:c:p:")) != -1) {
     switch(opt) {
+      case 'a':
+        inaddr = optarg;
+        break;
       case 'c':
         cmd = optarg;
         break;
@@ -83,9 +90,11 @@ int main( int argc, char *argv[] ) {
   saddr.sin_addr.s_addr = INADDR_ANY;
   saddr.sin_port        = htons(port);
 
+  inet_aton(inaddr, &saddr.sin_addr);
+
   // Bind socket to port
   if(bind(sockfd,(struct sockaddr *) &saddr, sizeof(saddr))<0) {
-    fprintf( stderr, "Could not bind to port %d\n", port );
+    fprintf( stderr, "Could not bind to %s:%d\n", inet_ntoa(saddr.sin_addr), port );
     exit(EXIT_FAILURE);
   }
 
@@ -94,7 +103,7 @@ int main( int argc, char *argv[] ) {
     fprintf( stderr, "Could not start listening\n" );
     exit(EXIT_FAILURE);
   } else {
-    printf( "Listening on port %d\n", port );
+    printf( "Listening on %s:%d\n", inet_ntoa(saddr.sin_addr), port );
   }
 
   // Prepare for the client
