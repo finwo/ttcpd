@@ -1,19 +1,28 @@
-CC:=$(shell which gcc tcc | head -1)
+CC?=cc
 PREFIX?=/usr/local
+CFLAGS?=-O2 -s
 
 BIN= \
 	ttcpd \
 
+OBJ=$(patsubst %,src/%.o,$(BIN))
 
-SRC=$(patsubst %,src/%.c,$(BIN))
+LIBS?=
 
-$(BIN): $(SRC)
-	$(CC) -O3 -s src/$@.c -o $@
+default: $(BIN)
+
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(BIN): $(OBJ)
+	$(CC) -o $@ src/$@.o $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 clean:
 	rm -rf $(BIN)
+	rm -rf $(OBJ)
 
 .PHONY: install
 install: $(BIN)
 	install $(BIN) $(PREFIX)/bin
+
